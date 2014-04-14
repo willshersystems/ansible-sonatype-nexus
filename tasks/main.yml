@@ -1,0 +1,99 @@
+---
+  - name: Create "nexus" group
+    group: name=nexus
+
+  - name: Create "nexus" user
+    user: name=nexus group=nexus
+
+  - name: Download nexus
+    get_url: url={{ sonatype_nexus_download_url }} dest={{ sonatype_nexus_download_dest }}
+    register: nexus_download
+
+  - name: Download nexus PGP signature
+    get_url: url={{ sonatype_nexus_download_url }}.asc dest={{ sonatype_nexus_download_dest }}.asc
+
+  - name: Verify PGP signature
+    command: gpg --verify {{ sonatype_nexus_download_dest }}.asc
+    when: nexus_download.changed
+
+  - name: Get Nexus directory
+    shell: "tar -tf {{ sonatype_nexus_download_dest }} | egrep '^nexus-' | cut -d/ -f1 | uniq"
+    register: nexus_directory
+
+  - name: Extract Nexus
+    command: tar xzf {{ sonatype_nexus_download_dest }} chdir=/opt
+    when: nexus_download.changed
+    notify:
+      - restart sonatype-nexus
+
+  - name: Create and own working directories
+    file: dest={{ item }} owner=nexus group=nexus recurse=true state=directory
+    with_items:
+      - "{{ sonatype_nexus_work_dir }}"
+      - "{{ sonatype_nexus_pid_dir }}"
+      - "{{ sonatype_nexus_root_dir }}/{{ nexus_directory.stdout }}/logs"
+    notify:
+      - restart sonatype-nexus
+
+  - name: Set NEXUS_HOME
+    lineinfile: dest={{ sonatype_nexus_root_dir }}/{{ nexus_directory.stdout }}/bin/nexus
+                regexp='^NEXUS_HOME="'
+                line='NEXUS_HOME="{{ sonatype_nexus_dir }}"'
+    notify:
+      - restart sonatype-nexus
+
+  - name: Set PIDDIR
+    lineinfile: dest={{ sonatype_nexus_root_dir }}/{{ nexus_directory.stdout }}/bin/nexus
+                regexp='^PIDDIR="'
+                insertafter="#PIDDIR="
+                line='PIDDIR="{{ sonatype_nexus_pid_dir }}"'
+    notify:
+      - restart sonatype-nexus
+
+  - name: Set RUN_AS_USER
+    lineinfile: dest={{ sonatype_nexus_root_dir }}/{{ nexus_directory.stdout }}/bin/nexus
+                regexp='^RUN_AS_USER="'
+                insertafter="#RUN_AS_USER="
+                line='RUN_AS_USER="nexus"'
+    notify:
+      - restart sonatype-nexus
+
+  - name: Set application-port
+    lineinfile: dest={{ sonatype_nexus_root_dir }}/{{ nexus_directory.stdout }}/conf/nexus.properties
+                regexp='^application-port='
+                line='application-port={{ sonatype_nexus_application_port }}'
+    notify:
+      - restart sonatype-nexus
+
+  - name: Set application-host
+    lineinfile: dest={{ sonatype_nexus_root_dir }}/{{ nexus_directory.stdout }}/conf/nexus.properties
+                regexp='^application-host='
+                line='application-host={{ sonatype_nexus_application_host }}'
+    notify:
+      - restart sonatype-nexus
+
+  - name: Set nexus-work
+    lineinfile: dest={{ sonatype_nexus_root_dir }}/{{ nexus_directory.stdout }}/conf/nexus.properties
+                regexp='^nexus-work='
+                line='nexus-work={{ sonatype_nexus_work_dir }}'
+    notify:
+      - restart sonatype-nexus
+
+  - name: Repoint symbolic link
+    file: src={{ sonatype_nexus_root_dir }}/{{ nexus_directory.stdout }}
+          dest={{ sonatype_nexus_dir }}
+          state=link
+    notify:
+      - restart sonatype-nexus
+
+  - name: create symbolic links to /etc/init.d/nexus
+    file: src={{ sonatype_nexus_dir }}/bin/nexus
+          dest=/etc/init.d/nexus
+          state=link
+    notify:
+      - restart sonatype-nexus
+
+  - name: configure runlevel links for nexus
+    command: update-rc.d nexus defaults
+
+

@@ -15,7 +15,9 @@ galaxy_info:
     versions:
     - all
   categories:
-  - system
+  - web
+  - development
+  - packaging
 dependencies:
   - mattwillsher.gpg,0.0.1
   - mattwillsher.openjdk,0.0.1

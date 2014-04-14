@@ -1,7 +1,7 @@
 ---
 dependencies:
-  - { role: gpg, gpg_key_id: '8DD1BDFD' }
-  - { role: openjdk, java_version: 7, java_default: 7 }
+  - { role: mattwillsher.gpg, gpg_key_id: '8DD1BDFD' }
+  - { role: mattwillsher.openjdk, java_version: 7, java_default: 7 }
 galaxy_info:
   author: Matt Willsher
   description: Install Sonatype Nexus on Ubuntu/Debian
@@ -19,5 +19,5 @@ galaxy_info:
   - development
   - packaging
 dependencies:
-  - mattwillsher.gpg,0.0.1
-  - mattwillsher.openjdk,0.0.1
+  - mattwillsher.gpg
+  - mattwillsher.openjdk

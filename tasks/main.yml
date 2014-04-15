@@ -79,6 +79,13 @@
     notify:
       - restart sonatype-nexus
 
+  - name: Set nexus-webapp-context-path
+    lineinfile: dest={{ sonatype_nexus_root_dir }}/{{ nexus_directory.stdout }}/conf/nexus.properties
+                regexp='^nexus-webapp-context-path='
+                line='nexus-webapp-context-path={{ sonatype_nexus_webapp_context_path }}'
+    notify:
+      - restart sonatype-nexus
+
   - name: Repoint symbolic link
     file: src={{ sonatype_nexus_root_dir }}/{{ nexus_directory.stdout }}
           dest={{ sonatype_nexus_dir }}

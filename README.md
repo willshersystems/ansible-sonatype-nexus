@@ -22,6 +22,10 @@ For nginx configuration:
 * **sonatype_nexus_nginx_ssl_cert_file**. Location of the SSL certificate.
 * **sonatype_nexus_nginx_ssl_key_file**. Location of the SSL key.
 
+Apt plugin:
+
+* **sonatype_nexus_plugin_apt_version** If set, install the nexus apt plugin. Needs to be a version of the plugin (e.g. 1.0.0)
+
 Examples
 --------
 

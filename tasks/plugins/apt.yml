@@ -5,8 +5,12 @@
     register: sonatype_nexus_plugin_apt_download
     when: sonatype_nexus_plugin_apt_version is defined
 
+  - name: Install unzip
+    apt: name=unzip state=installed
+    when: sonatype_nexus_plugin_apt_download.changed
+
   - name: Extract apt plugin
-    command: "unzip -o nexus-apt-plugin-{{ sonatype_nexus_plugin_apt_version }}-bundle.zip chdir={{ sonatype_nexus_work_dir }}/plugin-repository"
+    command: unzip -o nexus-apt-plugin-{{ sonatype_nexus_plugin_apt_version }}-bundle.zip chdir={{ sonatype_nexus_work_dir }}/plugin-repository
     when: sonatype_nexus_plugin_apt_download.changed
     notify:
       - restart sonatype-nexus

@@ -24,6 +24,7 @@
     file: dest={{ item }} owner=nexus group=nexus recurse=true state=directory
     with_items:
       - "{{ sonatype_nexus_work_dir }}"
+      - "{{ sonatype_nexus_work_dir }}/plugin-repository"
       - "{{ sonatype_nexus_pid_dir }}"
       - "{{ sonatype_nexus_root_dir }}/{{ nexus_directory.stdout }}/logs"
     notify:

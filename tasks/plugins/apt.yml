@@ -15,8 +15,13 @@
     notify:
       - restart sonatype-nexus
 
+  - name: Install signing key to {{ sonatype_nexus_work_dir }}/pkg_signing_gpg.keyring if defined
+    copy: src={{ sonatype_nexus_pkg_signing_keyring }} dest={{ sonatype_nexus_work_dir }}/pkg_signing_gpg.keyring
+          owner=nexus group=nexus mode=0600
+    when: sonatype_nexus_pkg_signing_keyring is defined
+
   - name: Plugin ownership
     file: owner=nexus group=nexus mode=0755 recurse=true state=directory
-          dest=/var/lib/sonatype-nexus/plugin-repository/nexus-apt-plugin-{{ sonatype_nexus_plugin_apt_version }}
+          dest={{ sonatype_nexus_work_dir }}/plugin-repository/nexus-apt-plugin-{{ sonatype_nexus_plugin_apt_version }}
     notify:
       - restart sonatype-nexus

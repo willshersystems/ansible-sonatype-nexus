@@ -25,6 +25,8 @@ For nginx configuration:
 Apt plugin:
 
 * **sonatype_nexus_plugin_apt_version** If set, install the nexus apt plugin. Needs to be a version of the plugin (e.g. 1.0.0)
+* **sonatype_nexus_pkg_signing_key** If defined, the location of the apt pkg signing key. Installed to
+{{ sonatype_nexus_work_dir }}/pkg_signing_gpg.keyring
 
 Examples
 --------
